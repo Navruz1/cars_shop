@@ -11,3 +11,22 @@ class Car(models.Model):
 
     def __str__(self):
         return f"{self.manufacturer} {self.name} ({self.year})"
+
+
+# Создаём отдельную модель чтобы к одной машине можно было привязать несколько изображений
+
+class CarImage(models.Model):
+    image = models.ImageField(upload_to="cars/")
+    car = models.ForeignKey(
+        Car,
+        on_delete=models.CASCADE,
+        verbose_name="Машина",
+        related_name="images"
+    )
+
+    @property
+    def get_image_url(self):
+        return self.image.url if self.image else ""
+
+    def __str__(self):
+        return f"Image(s) of {self.car}"

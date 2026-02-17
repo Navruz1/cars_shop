@@ -6,14 +6,18 @@ class CarFilter(django_filters.FilterSet):
         field_name='name',
         lookup_expr='icontains'
     )
+
     manufacturer = django_filters.CharFilter(
         field_name='manufacturer',
         lookup_expr='icontains'
     )
+
     # Диапазонные фильтры
+
     year_from = django_filters.NumberFilter(
         field_name='year', lookup_expr='gte'
     )
+
     year_to = django_filters.NumberFilter(
         field_name='year', lookup_expr='lte'
     )
@@ -21,6 +25,7 @@ class CarFilter(django_filters.FilterSet):
     price_from = django_filters.NumberFilter(
         field_name='price', lookup_expr='gte'
     )
+
     price_to = django_filters.NumberFilter(
         field_name='price', lookup_expr='lte'
     )
@@ -28,6 +33,7 @@ class CarFilter(django_filters.FilterSet):
     mileage_from = django_filters.NumberFilter(
         field_name='mileage', lookup_expr='gte'
     )
+
     mileage_to = django_filters.NumberFilter(
         field_name='mileage', lookup_expr='lte'
     )
