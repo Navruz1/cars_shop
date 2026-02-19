@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from drf_spectacular.utils import extend_schema_field
+# from drf_spectacular.utils import extend_schema_field
 from .models import Car, CarImage
 
 
@@ -20,7 +20,7 @@ class CarListSerializer(serializers.ModelSerializer):
         model = Car
         fields = ['id', 'name', 'manufacturer', 'year', 'price', 'mileage', 'images_count']
 
-    @extend_schema_field(serializers.IntegerField())    # Устанавливаем тип images_count как Int
+    # @extend_schema_field(serializers.IntegerField())    # Устанавливаем тип images_count как Int
     def get_images_count(self, obj):
         return obj.images.count()
 

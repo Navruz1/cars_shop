@@ -1,0 +1,6 @@
+==== Requirements ====
+
+pip install djangorestframework-simplejwt   # Authentications / Tokens with JWT
+pip install python-decouple                 # Read .env
+
+

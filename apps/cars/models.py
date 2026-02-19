@@ -1,6 +1,6 @@
 from django.db import models
-from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers
+# from drf_spectacular.utils import extend_schema_field
+# from rest_framework import serializers
 
 # Create your models here.
 
@@ -26,7 +26,7 @@ class CarImage(models.Model):
         related_name="images"
     )
 
-    @extend_schema_field(serializers.CharField())
+    # @extend_schema_field(serializers.CharField())
     def get_image_url(self):
         return self.image.url if self.image else ""
 

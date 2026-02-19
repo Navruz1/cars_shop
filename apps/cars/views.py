@@ -1,6 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.generics import (
     ListAPIView,
@@ -55,9 +54,9 @@ class CarUpdateAPI(UpdateAPIView):
 
 # Удаление машины
 
-@extend_schema(responses=None, description="Удаление машины")
 class CarDeleteAPI(DestroyAPIView):
     queryset = Car.objects.all()
+    serializer_class = CarListSerializer
     lookup_field = "id"
 
 
