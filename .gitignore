@@ -1,2 +1,11 @@
-.env
+# Python
+__pycache__/
+*.pyc
+
+# IDE
 .venv
+.idea
+
+# Project
+.env
+#sqlite3.db

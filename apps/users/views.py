@@ -1,5 +1,5 @@
 from .models import User
-from .serializers import UserCreateSerializer, UsersListSerializer
+from .serializers import UsersListSerializer
 from rest_framework.generics import (
     CreateAPIView,
     ListAPIView,
@@ -8,12 +8,7 @@ from rest_framework.generics import (
     DestroyAPIView
 )
 
-# CREATE
-class UserCrateAPI(CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserCreateSerializer
-
 # GET List
-class UsersListAPI(ListAPIView):
+class UsersListAPIView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UsersListSerializer

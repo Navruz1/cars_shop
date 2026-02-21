@@ -1,0 +1,9 @@
+Добавлены API для логина, логаута и смены пароля
+
+- Реализован LoginAPIView с JWT токенами, логированием входа и проверкой активности пользователя
+- Добавлен LogoutAPIView, который инвалидирует refresh-токен и логирует выход
+- Создан PasswordChangeAPIView с проверкой старого пароля, валидацией нового и инвалидированием всех refresh-токенов
+- Улучшен PasswordChangeSerializer: write_only поля, проверка нового пароля != старого, поддержка validate_password
+- Исправлены сериализаторы Logout и Register для корректного использования ValidationError и перевода сообщений
+- Добавлены миграции для модели RefreshToken
+- Добавлен .gitignore для __pycache__, .pyc, .idea и sqlite3.db

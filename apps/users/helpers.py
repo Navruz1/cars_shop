@@ -21,11 +21,12 @@ def get_user_agent(request):
 # Create AuthLog Object
 def log_auth_action(user, action, request, metadata=None):
     from apps.users.models import AuthLog
+
     AuthLog.objects.create(
         user=user,
         action=action,
-        ip_address=get_client_ip(request),
-        user_agent=get_user_agent(request),
+        ip_address=get_client_ip(request) if request else None,
+        user_agent=get_user_agent(request) if request else '',
         metadata=metadata or {}
     )
 
