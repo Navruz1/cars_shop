@@ -18,12 +18,38 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Access to API
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="", cast=Csv())
+CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS", default="", cast=Csv())
 
 # POST Requests
-CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS", default="", cast=Csv())
 
 # Redis, for Caches and Sessions
-REDIS_HOST = config("REDIS_HOST", default="localhost")
-REDIS_PORT = config("REDIS_PORT", default="6379", cast=int)
-REDIS_DB = config("REDIS_DB", default="0", cast=int)
+REDIS_HOST = env("REDIS_HOST", default="localhost")
+REDIS_PORT = env("REDIS_PORT", default="6379", cast=int)
+REDIS_DB = env("REDIS_DB", default="0", cast=int)
+
+# Passwords Validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        # максимальная допустимая схожесть (от 0 до 1) следующих атрибутов пользователя
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {
+            'user_attributes': ('username', 'first_name', 'last_name', 'email'),
+            'max_similarity': 0.7,
+        }
+    },
+    {
+        # Минимальная длина пароля
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8}  # рекомендуемая минимальная длина 12
+    },
+    {
+        # Путь к файлу со списком часто используемых паролей
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        # 'OPTIONS': {'password_list_path': BASE_DIR / '.../common-passwords.txt'},
+    },
+    {
+        # Запрет на full-number пароли
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]

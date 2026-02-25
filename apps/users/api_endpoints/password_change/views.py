@@ -5,45 +5,42 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from apps.users.models import RefreshToken, AuthLog
-from apps.users.helpers import *
+from apps.users.models import AuthLog, RefreshTokenModel
+from apps.users.helpers import log_auth_action
 from .serializers import PasswordChangeSerializer
-
 
 class PasswordChangeAPIView(CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PasswordChangeSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        user = request.user
-        old_password = serializer.validated_data['old_password']
+    def perform_create(self, serializer):
+        user = self.request.user
         new_password = serializer.validated_data['new_password']
 
-        if not user.check_password(old_password):
-            return Response({
-                "old_password": [_('Old password is incorrect')]
-            })
-
-        # Смена пароля
+        # Сохранить новый пароль
         user.set_password(new_password)
         user.save()
 
-        # Инвалидация всех действующих refresh-токенов
-        RefreshToken.objects.filter(user=user,is_valid=True).update(is_valid=False)
+        # Обновить сессии, чтобы не разлогиниться
+        update_session_auth_hash(self.request, user)
 
-        # Обновление сессии
-        update_session_auth_hash(request, user)
+        # Инвалидация всех действующих refresh-токенов
+        RefreshTokenModel.objects.filter(user=user, is_valid=True).update(is_valid=False)
 
         # Логирование действий
-        log_auth_action(
-            user=user,
-            action=AuthLog.ActionChoices.PASSWORD_CHANGE,
-            request=request,
-            metadata={"info": 'Password changed'}
-        )
+        log_auth_action(user, AuthLog.ActionChoices.PASSWORD_CHANGE, self.request,
+                        metadata={"info": 'Password changed successfully'})
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        old_password = serializer.validated_data['old_password']
+
+        if not request.user.check_password(old_password):  # неверный пароль
+            return Response({"old_password": [_('Old password is incorrect')]}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Сохранение пароля
+        self.perform_create(serializer)
 
         return Response(
             {'detail': _('Password changes successfully')},

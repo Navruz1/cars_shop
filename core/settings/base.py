@@ -74,14 +74,6 @@ DATABASES = {
     }
 }
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
-]
-
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = "Asia/Tashkent" # 'UTC'
@@ -110,54 +102,90 @@ REST_FRAMEWORK = {
     # ),
 }
 
-# Tokens / Authenticate (JTW)
-# SIMPLE_JTV = {
-#     # Access / Refresh Tokens
-#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30), # Вр. жизни токена
-#     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Вр. жизни refresh-а, который создаёт токены
-#     'ROTATE_REFRESH_TOKENS': True,      # Каждое исп. refresh генерирует новый refresh-токен
-#     'BLACKLIST_AFTER_ROTATION': True,   # Старые refresh-токены попадает в чёрный список
-#     'TOKEN_BLACKLIST_ENABLE': True,     # Аннулирование токенов при их краже или logout
-#     'JTI_CLAIM': 'jti',                 # jti - уникальный ID токена, используется для чёрного списка и ротации.
-#     'UPDATE_LAST_LOGIN': False,     # Не обновлять last_login при каждом новом токене, чтобы не перегружать БД
-#
-#     # Sliding Tokens
-#     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",       # Альтернатива access + refresh
-#     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),         # Сколько живёт токен, прежде чем обновлять
-#     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),    # Максимум времени для обновлений
-#
-#     # Encryption
-#     'ALGORITHM': 'HS256',       # Алгоритм шифрования токенов
-#     'SIGNING_KEY': SECRET_KEY,  # Ключ, которым подписывается токен
-#     'VERIFYING_KEY': '',        # Для ассиметричного шифрования. Пустой, потому что HS256 симметричный
-#
-#     # HTTP Headers
-#     'AUTH_HEADER_TYPES': ('Bearer',),           # Стандартный способ передачи токена (Bearer - носитель)
-#     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',   # Название заголовка
-#     "USER_ID_FIELD": "id",                      # поле id модели User
-#     "USER_ID_CLAIM": "user_id",                 # id превратить в CLAIM в токене (user_id)
-#     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-#
-#     # Token Classes
-#     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",), # какие токены будут использоваться для проверки
-#     "TOKEN_TYPE_CLAIM": "token_type",                                       # поле в токене для указания типа (access / refresh).
-#     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",        # класс, который создаётся на основе токена, если пользователь не загружен полностью
-#
-#     # Other Settings
-#     "ISSUER": None,    # От кого токен
-#     "AUDIENCE": None,  # К кому токен
-#     "JSON_ENCODER": None,   # Кастомный сериализатор JSON
-#     "JWK_URL": None,        # Для получения публичного ключа при JWKS
-#     "LEEWAY": 0,  # допустимое отклонение времени токена (сек) на компенсацию разницы времени на сервере
-#
-#     # Token Serializers (for API)
-#     'TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
-#     'TOKEN_REFRESH_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenRefreshSerializer',
-#     'TOKEN_VERIFY_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenVerifySerializer',
-#     'TOKEN_BLACKLIST_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenBlacklistSerializer',
-#     'SLIDING_TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer',
-#     'SLIDING_TOKEN_REFRESH_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer',
-# }
+# Tokens / Authenticate (JWT)
+SIMPLE_JWT = {
+    # Access / Refresh Tokens
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1), # Вр. жизни токена
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Вр. жизни refresh-а, который создаёт токены
+    'ROTATE_REFRESH_TOKENS': True,      # Каждое исп. refresh генерирует новый refresh-токен
+    'BLACKLIST_AFTER_ROTATION': True,   # Старые refresh-токены попадает в чёрный список
+    'TOKEN_BLACKLIST_ENABLE': True,     # Аннулирование токенов при их краже или logout
+    'JTI_CLAIM': 'jti',                 # jti - уникальный ID токена, используется для чёрного списка и ротации.
+    'UPDATE_LAST_LOGIN': False,     # Не обновлять last_login при каждом новом токене, чтобы не перегружать БД
+
+    # Sliding Tokens
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",       # Альтернатива access + refresh
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),         # Сколько живёт токен, прежде чем обновлять
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),    # Максимум времени для обновлений
+
+    # Encryption
+    'ALGORITHM': 'HS256',       # Алгоритм шифрования токенов
+    'SIGNING_KEY': SECRET_KEY,  # Ключ, которым подписывается токен
+    'VERIFYING_KEY': '',        # Для ассиметричного шифрования. Пустой, потому что HS256 симметричный
+
+    # HTTP Headers
+    'AUTH_HEADER_TYPES': ('Bearer',),           # Стандартный способ передачи токена (Bearer - носитель)
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',   # Название заголовка
+    "USER_ID_FIELD": "id",                      # поле id модели User
+    "USER_ID_CLAIM": "user_id",                 # id превратить в CLAIM в токене (user_id)
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    # Token Classes
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",), # какие токены будут использоваться для проверки
+    "TOKEN_TYPE_CLAIM": "token_type",                                       # поле в токене для указания типа (access / refresh).
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",        # класс, который создаётся на основе токена, если пользователь не загружен полностью
+
+    # Other Settings
+    "ISSUER": None,    # От кого токен
+    "AUDIENCE": None,  # К кому токен
+    "JSON_ENCODER": None,   # Кастомный сериализатор JSON
+    "JWK_URL": None,        # Для получения публичного ключа при JWKS
+    "LEEWAY": 0,  # допустимое отклонение времени токена (сек) на компенсацию разницы времени на сервере
+
+    # Token Serializers (for API)
+    'TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainPairSerializer',
+    'TOKEN_REFRESH_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenRefreshSerializer',
+    'TOKEN_VERIFY_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenVerifySerializer',
+    'TOKEN_BLACKLIST_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenBlacklistSerializer',
+    'SLIDING_TOKEN_OBTAIN_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer',
+    'SLIDING_TOKEN_REFRESH_SERIALIZER': 'rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API',
+    'VERSION': '1.0.0',
+    'SECURITY': [
+        {
+            'bearerAuth': [],
+        }
+    ],
+    'COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            }
+        }
+    }
+}
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": (
+                "JWT Authorization header using the Bearer scheme.\n\n"
+                "Example:\n"
+                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            ),
+        }
+    },
+    "USE_SESSION_AUTH": False,  # отключаем Basic auth
+}
+
 
 # API / Swagger
 # SPECTACULAR_SETTINGS = { # Важно для работы Swagger с бинарными (медиа) файлами
@@ -165,7 +193,6 @@ REST_FRAMEWORK = {
 #     'VERSION': '1.0.0',
 #     'COMPONENT_SPLIT_REQUEST': True,
 # }
-#
 
 
 
