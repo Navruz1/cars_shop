@@ -24,12 +24,11 @@ class PasswordChangeAPIView(CreateAPIView):
         # Обновить сессии, чтобы не разлогиниться
         update_session_auth_hash(self.request, user)
 
-        # Инвалидация всех действующих refresh-токенов
+        # Инвалидация действующих refresh-токенов
         RefreshTokenModel.objects.filter(user=user, is_valid=True).update(is_valid=False)
 
         # Логирование действий
-        log_auth_action(user, AuthLog.ActionChoices.PASSWORD_CHANGE, self.request,
-                        metadata={"info": 'Password changed successfully'})
+        log_auth_action(user, AuthLog.ActionChoices.PASSWORD_CHANGE, self.request, metadata={"info": 'Password changed successfully'})
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -46,5 +45,3 @@ class PasswordChangeAPIView(CreateAPIView):
             {'detail': _('Password changes successfully')},
             status=status.HTTP_200_OK
         )
-
-__all__ = ['PasswordChangeAPIView']

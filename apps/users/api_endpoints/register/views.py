@@ -7,4 +7,3 @@ class RegisterAPIView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
-__all__ = ['RegisterAPIView']

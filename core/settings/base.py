@@ -105,7 +105,7 @@ REST_FRAMEWORK = {
 # Tokens / Authenticate (JWT)
 SIMPLE_JWT = {
     # Access / Refresh Tokens
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1), # Вр. жизни токена
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),    # Вр. жизни токена
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Вр. жизни refresh-а, который создаёт токены
     'ROTATE_REFRESH_TOKENS': True,      # Каждое исп. refresh генерирует новый refresh-токен
     'BLACKLIST_AFTER_ROTATION': True,   # Старые refresh-токены попадает в чёрный список

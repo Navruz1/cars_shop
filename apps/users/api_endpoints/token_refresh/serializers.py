@@ -2,6 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+
 from apps.users.models import RefreshTokenModel
 
 class TokenRefreshAPISerializer(serializers.Serializer):
@@ -10,24 +11,25 @@ class TokenRefreshAPISerializer(serializers.Serializer):
     def validate(self, attrs):
         token_str = attrs.get('refresh_token')
 
+        # Проверка в БД
         try:
             token_obj = RefreshTokenModel.objects.select_related('user').get(token=token_str, is_valid=True)
         except RefreshTokenModel.DoesNotExist:
             raise serializers.ValidationError(_("Invalid or expired refresh token."))
 
-        # Проверить, не истёк ли срок годности Токена
+        # Проверить, не истёк ли срок годности Refresh токена
         if token_obj.expires_at and token_obj.expires_at < timezone.now():
             token_obj.is_valid = False
             token_obj.save(update_fields=['is_valid'])
-            raise serializers.ValidationError(
-				{'refresh_token': _('Refresh token expired.')}
-			)
+            raise serializers.ValidationError({'refresh_token': _('Refresh token expired.')})
 
-        # Проверка правильности токена
+        # Проверка JWT (подпись, exp)
         try:
             jwt_refresh = RefreshToken(token_str)
         except TokenError:
-            raise serializers.ValidationError({'refresh_token': _('Invalid refresh token.')})
+            token_obj.is_valid = False
+            token_obj.save(update_fields=["is_valid"])
+            raise serializers.ValidationError(_("Invalid refresh token."))
 
         attrs['token_obj'] = token_obj
         attrs['jwt_refresh'] = jwt_refresh

@@ -1,10 +1,10 @@
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from datetime import datetime, timezone
-from django.utils.translation import gettext_lazy as _
-from .helpers import PHONE_REGEX
 
 # Create your models here.
+
 class User(AbstractUser):
     class RoleChoice(models.TextChoices):
         BUYER = 'buyer', _('Buyer')
@@ -13,22 +13,16 @@ class User(AbstractUser):
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['username']
 
-    phone_number = models.CharField(max_length=13, unique=True, validators=[PHONE_REGEX], verbose_name=_("Phone number"))
-    role = models.CharField(max_length=10, choices=RoleChoice.choices, default=RoleChoice.BUYER, verbose_name=_("User role"))
+    phone_number = models.CharField(max_length=13, unique=True, verbose_name=_("Phone Number"))
+    role = models.CharField(max_length=10, choices=RoleChoice.choices, default=RoleChoice.BUYER, verbose_name=_("User Role"))
+    is_active = models.BooleanField(default=False, verbose_name=_("Account is Active"))
 
     def __str__(self):
         return f"{self.username} ({self.phone_number})"
 
-    def generate_username_from_firstname(self):
-        """Устанавливает username как first_name+id после сохранения."""
-        if not self.id:
-            raise ValueError("User must be saved before generating username.")
-        self.username = f"{self.first_name[:20]}{self.id}"
-        self.save(update_fields=['username'])
-        return self.username
-
 
 # For User Account Actions
+
 class AuthLog(models.Model):
     class ActionChoices(models.TextChoices):
         LOGIN = 'login', _('Login')
@@ -50,6 +44,7 @@ class AuthLog(models.Model):
 
 
 # Refresh Token
+
 class RefreshTokenModel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='refresh_tokens')
     token = models.TextField(unique=True)
@@ -61,22 +56,34 @@ class RefreshTokenModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    @classmethod
-    def generate_for_user(cls, user, *, ip_address=None, user_agent=""):
-        from rest_framework_simplejwt.tokens import RefreshToken
 
-        refresh = RefreshToken.for_user(user)
-        expires_at = datetime.fromtimestamp(refresh.payload.get('exp'), tz=timezone.utc)
+# One-Time Passwords
 
-        obj = cls.objects.create(
-            user=user,
-            token=str(refresh),
-            ip_address=ip_address,
-            user_agent=user_agent,
-            is_valid=True,
-            expires_at=expires_at
-        )
-        obj.access_token = str(refresh.access_token)
-        return obj
+class VerifyOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=8)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+
+    def not_expired(self) -> bool:
+        return self.expires_at >= timezone.now()
 
 
+# class VerifyOTP(models.Model):
+#     class PurposeChoices(models.TextChoices):
+#         REGISTER = 'register', _('Registration')
+#         REVERIFY = 'reverify', _('Reverification')
+#         PASSWORD_CHANGE = 'password_change', _('Change Password')
+#
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     code = models.CharField(max_length=8)
+#     purpose = models.CharField(
+#         max_length=20,
+#         choices=PurposeChoices.choices,
+#         verbose_name=_('Purpose of Verify')
+#     )
+#     expires_at = models.DateTimeField()
+#     is_used = models.BooleanField(default=False)
+#
+#     def not_expired(self) -> bool:
+#         return self.expires_at >= timezone.now()

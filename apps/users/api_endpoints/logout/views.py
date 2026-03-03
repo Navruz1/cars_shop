@@ -36,4 +36,3 @@ class LogoutAPIView(CreateAPIView):
             status=status.HTTP_200_OK
         )
 
-__all__ = ['LogoutAPIView']

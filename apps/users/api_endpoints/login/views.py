@@ -3,8 +3,8 @@ from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 
-from apps.users.helpers import get_client_ip, get_user_agent, log_auth_action
-from apps.users.models import RefreshTokenModel, AuthLog
+from apps.users.helpers import MyTokenManager, log_auth_action
+from apps.users.models import AuthLog
 from .serializers import LoginSerializer
 
 class LoginAPIView(CreateAPIView):
@@ -23,11 +23,7 @@ class LoginAPIView(CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         # Создание токенов
-        token_obj = RefreshTokenModel.generate_for_user(
-            user=serializer.validated_data['user'],
-            ip_address=get_client_ip(request),
-            user_agent=get_user_agent(request),
-        )
+        token_obj = MyTokenManager.generate_for_user(serializer.validated_data['user'], request)
 
         self.perform_create(serializer)
         return Response({
@@ -36,6 +32,3 @@ class LoginAPIView(CreateAPIView):
             "token_type": "Bearer",
             "expires_in": int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
         }, status=status.HTTP_200_OK)
-
-
-__all__ = ['LoginAPIView']

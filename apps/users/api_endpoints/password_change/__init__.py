@@ -1,1 +1,3 @@
-from .views import *
+from .views import PasswordChangeAPIView
+
+__all__ = ['PasswordChangeAPIView']
