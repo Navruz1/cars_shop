@@ -10,6 +10,9 @@ SECRET_KEY = env("SECRET_KEY", "")
 DEBUG = env('DEBUG', 'True', cast=bool)
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', '', cast=Csv()) # HOSTS=localhost,127.0.0.1 -> ['localhost', '127.0.0.1']
 
+# OTP
+OTP_INPUT_LENGTH = env('OTP_INPUT_LENGTH', '6', cast=int)  # in model: max_length=8
+
 # Apps
 INSTALLED_APPS = [
 

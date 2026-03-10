@@ -1,6 +1,15 @@
+Source: https://carshop.com/inventory
+
 ==== Requirements ====
 
 pip install djangorestframework-simplejwt   # Authentications / Tokens with JWT
 pip install python-decouple                 # Read .env
 
 
+
+
+	Примечания
+
+Потенциальные проблемы в apps.users.services.TokenService.new_access():
+- RefreshToken ожидает объект типа Token. Он принимает token_obj (RefreshTokenModel)
+	потому что у него тоже есть атрибут token

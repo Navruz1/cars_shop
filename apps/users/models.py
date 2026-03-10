@@ -1,7 +1,10 @@
+from django.db import models
+from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+
+from .managers import UserManager, VerifyOTPManager, RefreshTokenModelManager
 
 # Create your models here.
 
@@ -11,11 +14,13 @@ class User(AbstractUser):
         SELLER = 'seller', _('Seller')
 
     USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = ['username']
+    # REQUIRED_FIELDS = ['username']
 
     phone_number = models.CharField(max_length=13, unique=True, verbose_name=_("Phone Number"))
     role = models.CharField(max_length=10, choices=RoleChoice.choices, default=RoleChoice.BUYER, verbose_name=_("User Role"))
     is_active = models.BooleanField(default=False, verbose_name=_("Account is Active"))
+
+    objects = UserManager()
 
     def __str__(self):
         return f"{self.username} ({self.phone_number})"
@@ -56,17 +61,24 @@ class RefreshTokenModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = RefreshTokenModelManager()
+
+    def expired(self) -> bool:
+        return self.expires_at <= timezone.now()
+
 
 # One-Time Passwords
 
 class VerifyOTP(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    code = models.CharField(max_length=8)
+    phone_number = models.CharField(max_length=13, verbose_name=_("Phone Number"))
+    code = models.CharField(max_length=settings.OTP_INPUT_LENGTH)
     expires_at = models.DateTimeField()
     is_used = models.BooleanField(default=False)
 
-    def not_expired(self) -> bool:
-        return self.expires_at >= timezone.now()
+    objects = VerifyOTPManager()
+
+    def expired(self) -> bool:
+        return self.expires_at <= timezone.now()
 
 
 # class VerifyOTP(models.Model):

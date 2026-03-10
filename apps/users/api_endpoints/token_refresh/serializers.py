@@ -1,37 +1,26 @@
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
-from apps.users.models import RefreshTokenModel
+from apps.users.models import RefreshTokenModel as RTModel
+from apps.users.services import TokenService
+from apps.users.serializers import TokenRefreshBaseSerializer
 
-class TokenRefreshAPISerializer(serializers.Serializer):
+
+class TokenRefreshAPISerializer(TokenRefreshBaseSerializer):
     refresh_token = serializers.CharField(required=True, write_only=True)
 
     def validate(self, attrs):
-        token_str = attrs.get('refresh_token')
+        token = attrs['refresh_token']
 
-        # Проверка в БД
-        try:
-            token_obj = RefreshTokenModel.objects.select_related('user').get(token=token_str, is_valid=True)
-        except RefreshTokenModel.DoesNotExist:
-            raise serializers.ValidationError(_("Invalid or expired refresh token."))
+        token_obj = self.validate_token(token)
 
-        # Проверить, не истёк ли срок годности Refresh токена
-        if token_obj.expires_at and token_obj.expires_at < timezone.now():
-            token_obj.is_valid = False
-            token_obj.save(update_fields=['is_valid'])
-            raise serializers.ValidationError({'refresh_token': _('Refresh token expired.')})
+        new_access = TokenService.new_access(token)
 
-        # Проверка JWT (подпись, exp)
-        try:
-            jwt_refresh = RefreshToken(token_str)
-        except TokenError:
-            token_obj.is_valid = False
-            token_obj.save(update_fields=["is_valid"])
+        if not new_access:
+            TokenService.invalidate(token_obj)
             raise serializers.ValidationError(_("Invalid refresh token."))
 
         attrs['token_obj'] = token_obj
-        attrs['jwt_refresh'] = jwt_refresh
+        attrs['new_access'] = new_access
         attrs['user'] = token_obj.user
         return attrs

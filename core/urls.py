@@ -6,20 +6,20 @@ from django.urls import path, include
 #     SpectacularAPIView,
 #     SpectacularSwaggerView,
 # )
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView,
-    TokenBlacklistView,
-)
+# from rest_framework_simplejwt.views import (
+#     TokenObtainPairView,
+#     TokenRefreshView,
+#     TokenVerifyView,
+#     TokenBlacklistView,
+# )
 
 from core.schema import swagger_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('api/cars/', include('apps.cars.urls')),
-    path('api/users/', include('apps.users.urls')),
+    path('cars/', include('apps.cars.urls')),
+    path('users/', include('apps.users.urls')),
 
 ] + swagger_urlpatterns
 
@@ -43,17 +43,17 @@ if settings.DEBUG:
 
 
 
-# Authenticate API
-urlpatterns += [
-    # Получение access и refresh токена
-    path('api/token/', TokenObtainPairView.as_view(), name='token_pair_obtain'),
-
-    # Обновление access токена по refresh
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
-    # Проверка токена на валидность
-    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-
-    # Черный список токена (для logout)
-    path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
-]
+# # Authenticate API
+# urlpatterns += [
+#     # Получение access и refresh токена
+#     path('api/token/', TokenObtainPairView.as_view(), name='token_pair_obtain'),
+#
+#     # Обновление access токена по refresh
+#     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+#
+#     # Проверка токена на валидность
+#     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+#
+#     # Черный список токена (для logout)
+#     path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
+# ]

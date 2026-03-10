@@ -7,9 +7,9 @@ from .generator import BothHttpAndHttpsSchemaGenerator
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="dsdfsd",
+        title="Cars Shop Swagger",
         default_version="v1",
-        description="fsdfsd",
+        description="Cars Shop Swagger",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="info@birlik"),
         license=openapi.License(name="BSD License"),

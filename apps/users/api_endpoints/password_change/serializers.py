@@ -11,10 +11,14 @@ class PasswordChangeSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs):
+        user = self.context['request'].user
         old_password = attrs['old_password']
         new_password = attrs['new_password']
 
         if old_password == new_password:
             raise serializers.ValidationError(_('New password must be different from old password.'))
+
+        if not user.check_password(old_password):
+            raise serializers.ValidationError(_('Old password is incorrect.'))
 
         return attrs

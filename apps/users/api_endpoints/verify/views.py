@@ -4,50 +4,51 @@ from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 
 from .serializers import VerifyOTPSerializer, GetOTPByNumberSerializer
-from apps.users.helpers import MyTokenManager, OTPManager
+from apps.users.services import UserService, OTPService, TokenService
 
-# Получение OTP через номер
+
+# Генерация OTP
 class GetOTPByNumberView(CreateAPIView):
     serializer_class = GetOTPByNumberSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        user = serializer.user
-        otp_obj = OTPManager.create_otp(user)
+
+        otp_obj = OTPService.create_otp(serializer.validated_data['phone_number'])
 
         response_data = {
             "message": "OTP generated successfully",
-            "phone_number": user.phone_number,
+            "phone_number": serializer.validated_data['phone_number'],
             "otp_expires_at": otp_obj.expires_at,
         }
         if settings.DEBUG:
             response_data['otp_code'] = otp_obj.code
+        else:
+            # Здесь должна быть реализована отправка OTP
+            # через СМС на номер пользователя
+            pass
 
         return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 # Ввод одноразового кода (OTP)
 class VerifyOTPAPIView(CreateAPIView):
     serializer_class = VerifyOTPSerializer
 
-    def perform_create(self, serializer):
-        otp = serializer.otp_obj
-        otp.is_used = True  # "Этот OTP уже использован"
-        otp.save(update_fields=["is_used"])
-
-        # Активация аккаунта
-        user = serializer.user
-        user.is_active = True
-        user.save(update_fields=["is_active"])
-
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-        # Создание токенов
-        token_obj = MyTokenManager.generate_for_user(serializer.user, request)
+        # Инвалидация OTP
+        OTPService.invalidate(serializer.validated_data['otp_obj'])
 
-        self.perform_create(serializer)
+        # Активация аккаунта
+        UserService.activate(serializer.validated_data['user'])
+
+        # Создание токенов
+        token_obj = TokenService.generate_for_user(serializer.user, request)
+
         return Response({
             "access_token": token_obj.access_token,
             "refresh_token": token_obj.token,

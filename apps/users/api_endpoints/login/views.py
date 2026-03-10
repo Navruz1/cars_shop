@@ -3,32 +3,32 @@ from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 
-from apps.users.helpers import MyTokenManager, log_auth_action
-from apps.users.models import AuthLog
+from apps.users.services import AuthLogService, TokenService
 from .serializers import LoginSerializer
+
 
 class LoginAPIView(CreateAPIView):
     serializer_class = LoginSerializer
-
-    def perform_create(self, serializer):
-        log_auth_action(
-            user=serializer.validated_data['user'],
-            action=AuthLog.ActionChoices.LOGIN,
-            request=self.request,
-            metadata={"action": "User logged in"}
-        )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-        # Создание токенов
-        token_obj = MyTokenManager.generate_for_user(serializer.validated_data['user'], request)
+        # Аутентификация в сериализаторе
+        user = serializer.validated_data['user']
 
-        self.perform_create(serializer)
-        return Response({
-            "access_token": token_obj.access_token,
-            "refresh_token": token_obj.token,
-            "token_type": "Bearer",
-            "expires_in": int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
-        }, status=status.HTTP_200_OK)
+        # Создание токенов
+        token_obj = TokenService.generate_for_user(user, request)
+
+        # Логирование
+        AuthLogService.log(user, AuthLogService.Action.LOGIN, request)
+
+        return Response(
+            {
+                "access_token": token_obj.access_token,
+                "refresh_token": token_obj.token,
+                "token_type": "Bearer",
+                "expires_in": int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
+            },
+            status=status.HTTP_200_OK
+        )

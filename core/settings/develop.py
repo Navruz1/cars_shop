@@ -2,6 +2,8 @@ from .base import *
 
 DEBUG=True
 
+# OTP_INPUT_LENGTH = 4
+
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 CORS_ALLOW_ALL_ORIGINS = True

@@ -7,49 +7,53 @@ from apps.users.helpers import PHONE_REGEX
 
 # Получение OTP кода через номер
 class GetOTPByNumberSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(max_length=13, required=True, validators=[PHONE_REGEX])
+    phone_number = serializers.CharField(max_length=13, validators=[PHONE_REGEX], required=True)
 
     def validate_phone_number(self, value):
-        user = User.objects.filter(phone_number=value).first()
-        if not user:
-            raise serializers.ValidationError(_("User with this number not found."))  # Пользователя с таким номером не существует
-
-        if user.is_active:
-            raise serializers.ValidationError(_("User already verified."))  # Пользователь уже активен
-
-        self.user = user
+        if not User.objects.by_phone(value):
+            raise serializers.ValidationError(_("Phone number error."))
         return value
 
 # Ввод одноразового кода (OTP)
 class VerifyOTPSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=13, required=True, validators=[PHONE_REGEX])
-    code = serializers.CharField(max_length=6, required=True)
+    code = serializers.CharField(max_length=8, required=True)
 
     def validate(self, attrs):
-        user = User.objects.filter(phone_number=attrs['phone_number']).first()
-        otp_obj = VerifyOTP.objects.filter(code=attrs['code']).first()
-
-        if not user:
-            raise serializers.ValidationError(_("User with this number not found."))  # Пользователя с таким номером не существует
-
-        if user.is_active:
-            raise serializers.ValidationError(_("User already verified."))  # Пользователь уже активен
+        user = User.objects.by_phone(attrs['phone_number'])
+        otp_obj = VerifyOTP.objects.by_code(attrs['code'])
 
         if settings.DEBUG:
-            if not otp_obj:
-                raise serializers.ValidationError(_("OTP not found."))  # Неверный код
+            if not user:
+                raise serializers.ValidationError(
+                    _("User with this number not found."))  # Пользователя с таким номером не существует
 
-            if not otp_obj.not_expired():
-                raise serializers.ValidationError(_("OTP expired."))  # Код просрочен
+            if user.is_active:
+                raise serializers.ValidationError(
+                    _("User already verified."))  # Пользователь уже активен
+
+            if not otp_obj:
+                raise serializers.ValidationError(
+                    _("OTP not found."))  # Неверный код
+
+            if otp_obj.expired():
+                raise serializers.ValidationError(
+                    _("OTP expired."))  # Код просрочен
 
             if otp_obj.is_used:
-                raise serializers.ValidationError(_("OTP already used."))  # Код уже был применён
+                raise serializers.ValidationError(
+                    _("OTP already used."))  # Код уже был применён
         else:
-            if not otp_obj or not otp_obj.not_expired() or otp_obj.is_used:
-                raise serializers.ValidationError(_("OTP Error."))
+            if not user:
+                raise serializers.ValidationError(
+                    _("Phone number Error."))
 
-        self.otp_obj = otp_obj
-        self.user = user
+            if not otp_obj or otp_obj.expired() or otp_obj.is_used:
+                raise serializers.ValidationError(
+                    _("OTP Error."))
+
+        attrs['user'] = user
+        attrs['otp_obj'] = otp_obj
         return attrs
 
 
