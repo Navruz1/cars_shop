@@ -18,14 +18,14 @@ class LoginAPIView(CreateAPIView):
         user = serializer.validated_data['user']
 
         # Создание токенов
-        token_obj = TokenService.generate_for_user(user, request)
+        token_obj, access_token = TokenService.generate_for_user(user, request)
 
         # Логирование
         AuthLogService.log(user, AuthLogService.Action.LOGIN, request)
 
         return Response(
             {
-                "access_token": token_obj.access_token,
+                "access_token": access_token,
                 "refresh_token": token_obj.token,
                 "token_type": "Bearer",
                 "expires_in": int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())

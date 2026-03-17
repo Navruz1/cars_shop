@@ -10,9 +10,6 @@ SECRET_KEY = env("SECRET_KEY", "")
 DEBUG = env('DEBUG', 'True', cast=bool)
 ALLOWED_HOSTS = env('ALLOWED_HOSTS', '', cast=Csv()) # HOSTS=localhost,127.0.0.1 -> ['localhost', '127.0.0.1']
 
-# OTP
-OTP_INPUT_LENGTH = env('OTP_INPUT_LENGTH', '6', cast=int)  # in model: max_length=8
-
 # Apps
 INSTALLED_APPS = [
 
@@ -91,6 +88,21 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# OTP
+OTP_INPUT_LENGTH = env('OTP_INPUT_LENGTH', '6', cast=int)  # in model: max_length=8
+
+# Email
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = env('EMAIL_USE_TLS', cast=bool)
+
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD').strip()
+
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
 # DRF
 REST_FRAMEWORK = {
@@ -174,6 +186,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 SWAGGER_SETTINGS = {
+    "DEFAULT_MODEL_RENDERING": "example", # Edit Value, а не Model
     "SECURITY_DEFINITIONS": {
         "Bearer": {
             "type": "apiKey",

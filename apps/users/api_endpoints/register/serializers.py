@@ -8,7 +8,8 @@ class RegisterSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     phone_number = serializers.CharField(required=True, validators=[PHONE_REGEX])
     password = serializers.CharField(write_only=True, min_length=8, required=True)
-    role = serializers.HiddenField(default=User.RoleChoice.BUYER)
+    email = serializers.EmailField(required=False, allow_blank=True)
+    role = serializers.ChoiceField(choices=User.RoleChoice.choices, default=User.RoleChoice.BUYER)
 
     def validate_phone_number(self, value):
         if User.objects.by_phone(value):

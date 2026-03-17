@@ -18,7 +18,7 @@ from core.schema import swagger_urlpatterns
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('cars/', include('apps.cars.urls')),
+    # path('cars/', include('apps.cars.urls')),
     path('users/', include('apps.users.urls')),
 
 ] + swagger_urlpatterns

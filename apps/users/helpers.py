@@ -1,14 +1,20 @@
 import secrets
+from typing import Literal
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 
-from apps.users.models import User
+from apps.users.models import User, Verify
 
 # Phone Number Validate
 PHONE_REGEX = RegexValidator(
     regex=r'^\+998\d{9}$',
     message=_("Only Uzbekistan numbers - phone number must start with +998 and contain 9 digits after.")
 )
+
+VerifyTypes = Literal[
+    Verify.Type.PHONE,
+    Verify.Type.EMAIL
+]
 
 #
 def get_client_ip(request):

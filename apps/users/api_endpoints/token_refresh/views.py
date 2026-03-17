@@ -38,10 +38,10 @@ class TokenRefreshAPIView(CreateAPIView):
         TokenService.invalidate(serializer.validated_data['token_obj'])
 
         # Генерация нового токена
-        new_token = TokenService.generate_for_user(serializer.validated_data['user'], request)
+        new_token, access_token = TokenService.generate_for_user(serializer.validated_data['user'], request)
 
         return Response({
-            "access_token": new_token.access_token,
+            "access_token": access_token,
             "refresh_token": new_token.token,
             "token_type": "Bearer",
             "expires_in": int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())

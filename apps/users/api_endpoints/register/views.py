@@ -21,6 +21,7 @@ class RegisterAPIView(CreateAPIView):
                 "id": user.id,
                 "username": user.username,
                 "phone_number": user.phone_number,
+                "email": user.email or ""
             },
             status=status.HTTP_200_OK
         )

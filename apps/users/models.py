@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser
 
 from .managers import UserManager, VerifyOTPManager, RefreshTokenModelManager
 
+
 # Create your models here.
 
 class User(AbstractUser):
@@ -29,6 +30,7 @@ class User(AbstractUser):
 # For User Account Actions
 
 class AuthLog(models.Model):
+
     class ActionChoices(models.TextChoices):
         LOGIN = 'login', _('Login')
         LOGOUT = 'logout', _('Logout')
@@ -43,6 +45,8 @@ class AuthLog(models.Model):
     metadata = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = models.Manager()
 
     class Meta:
         indexes = [models.Index(fields=['user', 'created_at'])]
@@ -69,9 +73,18 @@ class RefreshTokenModel(models.Model):
 
 # One-Time Passwords
 
-class VerifyOTP(models.Model):
-    phone_number = models.CharField(max_length=13, verbose_name=_("Phone Number"))
+class Verify(models.Model):
+    class Meta:
+        abstract = True
+
+    class Type(models.TextChoices):
+        """Первые значения полей должны строго совпадать с названиями полей дочерних классов"""
+        PHONE = 'phone_number', _('Phone number')
+        EMAIL = 'email', _('Email')
+
     code = models.CharField(max_length=settings.OTP_INPUT_LENGTH)
+    # data = models.CharField(max_length=100)  # +998561611611, user@mail.com, ...
+    # verify_type = models.CharField(choices=Type.choices, default=Type.PHONE)  # phone_number, email, ...
     expires_at = models.DateTimeField()
     is_used = models.BooleanField(default=False)
 
@@ -80,6 +93,19 @@ class VerifyOTP(models.Model):
     def expired(self) -> bool:
         return self.expires_at <= timezone.now()
 
+
+# Phone Number Verify
+
+class PhoneVerify(Verify):
+    phone_number = models.CharField(max_length=13, verbose_name=_("Phone Number"))
+
+
+# Email Verify
+
+class EmailVerify(Verify):
+    user_id = models.IntegerField()
+    email = models.EmailField(max_length=100, verbose_name=_("E-Mail"))
+    # verify_type = models.CharField(choices=Verify.Type.choices, default=Verify.Type.EMAIL)
 
 # class VerifyOTP(models.Model):
 #     class PurposeChoices(models.TextChoices):

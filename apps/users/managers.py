@@ -3,8 +3,15 @@ from django.contrib.auth import models as auth_models
 
 
 class UserManager(auth_models.UserManager):
+    def by_id(self, user_id):
+        return self.filter(id=user_id).first()
+
     def by_phone(self, phone_number):
         return self.filter(phone_number=phone_number).first()
+        # return self.get(phone_number=phone_number)
+
+    def by_email(self, email):
+        return self.filter(email=email).first()
         # return self.get(phone_number=phone_number)
 
     def first_name_count(self, first_name):

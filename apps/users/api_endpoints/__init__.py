@@ -4,3 +4,4 @@ from .register import *
 from .password_change import *
 from .token_refresh import *
 from .verify import *
+from .email_verify import *

@@ -2,7 +2,10 @@ from .base import *
 
 DEBUG=True
 
-# OTP_INPUT_LENGTH = 4
+OTP_INPUT_LENGTH = 4
+
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # отправить в консоль
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"  # отправить на почту
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
@@ -18,3 +21,4 @@ INTERNAL_IPS = ["127.0.0.1"]
 
 # Passwords Validation
 AUTH_PASSWORD_VALIDATORS = []
+
