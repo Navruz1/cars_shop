@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 
 from .serializers import ConfirmEmailOTPSerializer, VerifyEmailOTPSerializer
-from apps.users.services import VerifyService
 from apps.users.models import User, Verify
+from apps.users.services.verify import verify_by, after_verify
 
 # Генерация OTP
 class GetOTPByEmailView(CreateAPIView):
@@ -14,7 +14,7 @@ class GetOTPByEmailView(CreateAPIView):
         serializer = self.get_serializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-        response_data = VerifyService.verify_by(
+        response_data = verify_by(
             Verify.Type.EMAIL,
             serializer.validated_data
         )
@@ -36,7 +36,7 @@ class VerifyEmailAPIView(CreateAPIView):
             user.email = otp.email
             user.save(update_fields=["email"])
 
-        response_data = VerifyService.user_verified(user, otp, request)
+        response_data = after_verify(user, otp, request)
 
         return Response(response_data, status=status.HTTP_200_OK)
 

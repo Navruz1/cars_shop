@@ -26,7 +26,7 @@ def verify_by(by: VerifyTypes, validated_data:dict) -> dict:
 
     response_data = {
         'message': 'OTP generated successfully',
-        'id': validated_data['user'].id,
+        # 'id': validated_data['user'].id,
         f"{field_name}": value,
         'otp_expires_at': otp_obj.expires_at,
     }
@@ -37,9 +37,9 @@ def verify_by(by: VerifyTypes, validated_data:dict) -> dict:
     return response_data
 
 
-def after_verify(user:User, otp:Verify, request=None) -> dict:
+def after_verify(user:User, otp_obj:Verify, request=None) -> dict:
     # Инвалидация OTP
-    invalidate_otp(otp)
+    invalidate_otp(otp_obj)
 
     # Активация аккаунта
     activate_user(user)
@@ -54,5 +54,4 @@ def after_verify(user:User, otp:Verify, request=None) -> dict:
         "token_type": "Bearer",
         "expires_in": int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
     }
-
     return response_data

@@ -24,7 +24,7 @@ class VerifyEmailOTPSerializer(serializers.Serializer):
                 'email': _('Incorrect email')
             })
 
-        attrs['user'] = user
+        # attrs['user'] = user
         return attrs
 
 

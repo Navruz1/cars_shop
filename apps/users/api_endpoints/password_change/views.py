@@ -5,9 +5,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import update_session_auth_hash
 
-from apps.users.models import RefreshTokenModel
-from apps.users.services import AuthLogService, TokenService
 from .serializers import PasswordChangeSerializer
+from apps.users.services.authlog import log, Action
+# from apps.users.models import RefreshTokenModel
+# from apps.users.services.tokens import invalidate_refresh
 
 class PasswordChangeAPIView(CreateAPIView):
     permission_classes = [IsAuthenticated]
@@ -28,10 +29,10 @@ class PasswordChangeAPIView(CreateAPIView):
 
         # # Инвалидация действующего refresh-токена
         # token_obj = RefreshTokenModel.objects.by_user(user)
-        # TokenService.invalidate(token_obj)
+        # invalidate_refresh(token_obj)
 
         # Логирование действий
-        AuthLogService.log(user, AuthLogService.Action.PASSWORD_CHANGE, request)
+        log(user, Action.PASSWORD_CHANGE, request)
 
         return Response(
             {

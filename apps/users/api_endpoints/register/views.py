@@ -2,8 +2,9 @@ from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
 
-from apps.users.services import UserService, AuthLogService
 from .serializers import RegisterSerializer
+from apps.users.services.user import register_user
+from apps.users.services.authlog import log, Action
 
 class RegisterAPIView(CreateAPIView):
     serializer_class = RegisterSerializer
@@ -12,12 +13,11 @@ class RegisterAPIView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = UserService.register_user(serializer.validated_data)
+        user = register_user(serializer.validated_data)
 
-        AuthLogService.log(user, AuthLogService.Action.REGISTER, request)
+        log(user, Action.REGISTER, request)
 
-        return Response(
-            {
+        return Response({
                 "id": user.id,
                 "username": user.username,
                 "phone_number": user.phone_number,
